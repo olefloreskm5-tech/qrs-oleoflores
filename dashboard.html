@@ -83,8 +83,11 @@ body{font-family:'Inter',system-ui,sans-serif;font-size:14px;color:var(--text);b
 .card-title{font-weight:700;font-size:13px;padding:14px 16px;border-bottom:1px solid var(--border)}
 .map-card svg{width:100%;height:auto;display:block}
 .mapa-nota{font-size:11px;color:var(--muted);padding:8px 16px 14px}
-.dpto-path{stroke:#fff;stroke-width:0.7;cursor:pointer;transition:opacity .15s}
+.dpto-path{stroke:#cbd5e1;stroke-width:0.9;cursor:pointer;transition:opacity .15s}
 .dpto-path:hover{opacity:.75}
+.dpto-activo{stroke:#7f1d1d;stroke-width:1.6}
+@keyframes brillo{0%,100%{filter:drop-shadow(0 0 0px rgba(185,28,28,.7))}50%{filter:drop-shadow(0 0 5px rgba(185,28,28,.7))}}
+.dpto-activo{animation:brillo 2.5s ease-in-out infinite}
 .rank-list{padding:10px 16px 16px}
 .rank-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:12px}
 .rank-name{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text)}
@@ -317,7 +320,7 @@ function renderMapa(){
   });
 
   const max = Math.max(1, ...Object.values(conteoDepto));
-  const color = d3.scaleLinear().domain([0, max]).range(['#ede9fe', '#5b21b6']);
+  const color = d3.scaleLinear().domain([0, max]).range(['#fde68a', '#b91c1c']);
 
   const width = 500, height = 500;
   const projection = d3.geoMercator().fitSize([width, height], geoColombia);
@@ -330,7 +333,12 @@ function renderMapa(){
     .data(geoColombia.features)
     .join('path')
     .attr('d', path)
-    .attr('class', 'dpto-path')
+    .attr('class', d => {
+      const nombre = nombreDeptoFeature(d.properties);
+      const n = normalizar(nombre);
+      const match = Object.keys(conteoDepto).find(k => normalizar(k) === n || n.includes(normalizar(k)) || normalizar(k).includes(n));
+      return 'dpto-path' + (match ? ' dpto-activo' : '');
+    })
     .attr('fill', d => {
       const nombre = nombreDeptoFeature(d.properties);
       const n = normalizar(nombre);
